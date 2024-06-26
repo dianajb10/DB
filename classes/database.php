@@ -10,7 +10,7 @@ function database(){
 
         // Check connection
         if(!$conn){
-            echo 'database connectio failed';
+            echo 'database connection failed';
             return false;
         }else{
             return $conn; // Return the connection resource on success

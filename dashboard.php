@@ -15,6 +15,9 @@ if(!$conn){
             case 'movie_list':
                 $status = 'movie_id';
                 break;
+            case 'education_list':
+                $status = 'edu_id';
+                break;            
             case 'game_list':
                 $status = 'game_id';
                 break;
@@ -57,6 +60,21 @@ if(isset($_POST['submit_edit_movie'])){
     $editMovieDescription = $_POST['editMovieDescription'];
     mysqli_query($conn,"UPDATE movie_list SET title='$editMovieTitle',description='$editMovieDescription' WHERE movie_id='$editMovieId'");
 }
+if(isset($_POST['submit_edit_education'])){
+    $editEducationId = $_POST['editEducationId'];
+    $editEducationTitle = $_POST['editEducationTitle'];
+    $editEducationDescription = $_POST['editEducationDescription'];
+    mysqli_query($conn,"UPDATE education_list SET title='$editEducationTitle',description='$editEducationDescription' WHERE edu_id='$editEducationId'");
+}
+/*school*/
+if(isset($_POST['submit_education'])){
+    $educationTitle = mysqli_real_escape_string($conn, $_POST['educationTitle']);
+    $educationDescription = mysqli_real_escape_string($conn, $_POST['educationDescription']);
+    $fileName = basename($_FILES["educationMediaUpload"]["name"]);
+    $filePath = 'images/'.$fileName;
+    move_uploaded_file($_FILES['educationMediaUpload']['tmp_name'],'images/'.$fileName);
+    mysqli_query($conn,"INSERT INTO `education_list`(`school`,`achievement`,`image`)VALUES('".$educationTitle."','".$educationDescription."','".$filePath."')");
+}    
 if(isset($_POST['submit_movie'])){
     $movieTitle = mysqli_real_escape_string($conn, $_POST['movieTitle']);
     $movieDescription = mysqli_real_escape_string($conn, $_POST['movieDescription']);
@@ -198,56 +216,39 @@ if(isset($_POST['submit_project'])){
     </section>
 
     <section id="about">
-        <h1>About Me</h1>
-        <h2>Educational Background</h2>
-        <p>Details about your educational background.</p>
-        <div class="about-section">
-            <div class="blog-card">
-                <div class="meta">
-                    <div class="photo"
-                        style="background-image: url(https://storage.googleapis.com/chydlx/codepen/blog-cards/image-1.jpg)">
+    <h1>About Me</h1>
+    
+    <h2>Educational Background</h2>
+    <?php
+        $get_education_list = mysqli_query($conn, "SELECT * FROM education_list");
+        if (mysqli_num_rows($get_education_list) >= 1) {
+            while ($row = mysqli_fetch_array($get_education_list)) {
+    ?>
+                <div class="about-section">
+                    <div class="blog-card">
+                        <div class="meta">
+                            <div class="photo" style="background-image: url(<?= $row['image'] ?>)"></div>
+                        </div>
+                        <div class="description">
+                            <h1><?= $row['school'] ?></h1>
+                            <p><?= $row['achievement'] ?></p>
+                        </div>
                     </div>
-                    <ul class="details">
-                        <li class="author">John Doe</li>
-                        <li class="date">Aug. 24, 2015</li>
-                    </ul>
                 </div>
-                <div class="description">
-                    <h1>Holistic Academy For Achievers</h1>
-                    <h2>Opening a door to the future</h2>
-                    <p> Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ad eum dolorum architecto obcaecati
-                        enim dicta praesentium, quam nobis! Neque ad aliquam facilis numquam. Veritatis, sit.</p>
-                </div>
-            </div>
-            <div class="blog-card alt">
-                <div class="meta">
-                    <div class="photo"
-                        style="background-image: url(https://storage.googleapis.com/chydlx/codepen/blog-cards/image-2.jpg)">
-                    </div>
-                    <ul class="details">
-                        <li class="author">Jane Doe</li>
-                        <li class="date">July. 15, 2015</li>
-                    </ul>
-                </div>
-                <div class="description">
-                    <h1>Holistic Academy For Achievers</h1>
-                    <h2>Java is not the same as JavaScript</h2>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ad eum dolorum architecto obcaecati
-                        enim dicta praesentium, quam nobis! Neque ad aliquam facilis numquam. Veritatis, sit.</p>
-                </div>
-            </div>
-        </div>
+    <?php
+            }
+        }
+    ?>
 
-        <h2>Favorite Movies</h2>
-        <div class="about-section">
-            <div class="cards">
-
-                <?php
-                $movie_list = mysqli_query($conn,"SELECT * FROM movie_list");
-                if(mysqli_num_rows($movie_list)>=1){
-                    while($row = mysqli_fetch_array($movie_list)){
-                        ?>
-                         <div class="card active" style="--bg: url(<?= $row['image'] ?>)">
+    <h2>Favorite Movies</h2>
+    <div class="about-section">
+        <div class="cards">
+            <?php
+                $movie_list = mysqli_query($conn, "SELECT * FROM movie_list");
+                if (mysqli_num_rows($movie_list) >= 1) {
+                    while ($row = mysqli_fetch_array($movie_list)) {
+            ?>
+                        <div class="card active" style="--bg: url(<?= $row['image'] ?>)">
                             <div class="shadow"></div>
                             <div class="label">
                                 <div class="info">
@@ -256,87 +257,61 @@ if(isset($_POST['submit_project'])){
                                 </div>
                             </div>
                         </div>
-                <?php
+            <?php
                     }
                 }
-                ?>
-            </div>
-<!-- 
-                <div class="card" style="--bg: url(images/ra.png)">
-                    <div class="shadow"></div>
-                    <div class="label">
-                        <div class="info">
-                            <div class="title">The Wind Rises</div>
-                            <div>2014. Directed by Hayao Miyazaki, animated by Studio Ghibli</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card" style="--bg: url(images/ra.png)">
-                    <div class="shadow"></div>
-                    <div class="label">
-                        <div class="info">
-                            <div class="title">Gravity Falls</div>
-                            <div>2012-2016. Directed by Alex Hirsch for Disney Channel</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card" style="--bg: url(images/rnm.webp)">
-                    <div class="shadow"></div>
-                    <div class="label">
-                        <div class="info">
-                            <div class="title">Rick and Morty</div>
-                            <div>2013. Directed by Justin Roiland and Dan Harmon for Cartoon Network</div>
-                        </div>
-                    </div>
-                </div>
- -->
+            ?>
         </div>
+    </div>
 
-        <h2>Favorite Games</h2>
-        <div class="about-section">
+    <h2>Favorite Games</h2>
+    <div class="about-section">
         <div class="project1">
-        <?php
-            $get_project_list = mysqli_query($conn,"SELECT * FROM game_list");
-            if(mysqli_num_rows($get_project_list)>=1){
-                while($row = mysqli_fetch_array($get_project_list)){
-                    ?>  
-                    <div class="project1">
-                        <img src="<?= $row['image'] ?>" alt="Project 1" class="project-image">
-                        <div class="project-info">
-                            <h3><?= $row['title'] ?></h3>
-                            <p><?= $row['description'] ?></p>
+            <?php
+                $get_game_list = mysqli_query($conn, "SELECT * FROM game_list");
+                if (mysqli_num_rows($get_game_list) >= 1) {
+                    while ($row = mysqli_fetch_array($get_game_list)) {
+            ?>
+                        <div class="project-card">
+                            <img src="<?= $row['image'] ?>" alt="Game" class="project-image">
+                            <div class="project-info">
+                                <h3><?= $row['title'] ?></h3>
+                                <p><?= $row['description'] ?></p>
+                            </div>
                         </div>
-                    </div>
-                    <br>
-                    <?php
+            <?php
+                    }
                 }
-            }
-        ?>
+            ?>
         </div>
-    </section>
+    </div>
+
+</section>
 
     <section id="projects">
         <h1>Projects</h1>
-        <?php
-            $get_project_list = mysqli_query($conn,"SELECT * FROM project_list");
-            if(mysqli_num_rows($get_project_list)>=1){
-                while($row = mysqli_fetch_array($get_project_list)){
-                    ?>  
-                    <div class="project">
-                        <img src="<?= $row['image'] ?>" alt="Project 1" class="project-image">
-                        <div class="project-info">
-                            <h3><?= $row['title'] ?></h3>
-                            <p><?= $row['description'] ?></p>
+        <div class="cards">
+            <?php
+                $project_list = mysqli_query($conn, "SELECT * FROM project_list");
+                if (mysqli_num_rows($project_list) >= 1) {
+                    while ($row = mysqli_fetch_array($project_list)) {
+            ?>
+                        <div class="card active" style="--bg: url(<?= $row['image'] ?>)">
+                            <div class="shadow"></div>
+                            <div class="label">
+                                <div class="info">
+                                    <div class="title"><?= $row['title'] ?></div>
+                                    <div class="text-center"><?= $row['description'] ?></div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <?php
+            <?php
+                    }
                 }
-            }
-        ?>
-      
+            ?>
+        </div>
     </section>
+
 
     <section id="contact">
         <h1>Contact Us</h1>
@@ -400,7 +375,7 @@ if(isset($_POST['submit_project'])){
         <div class="modal-dialog  modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">System Management</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">User Management</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -433,6 +408,42 @@ if(isset($_POST['submit_project'])){
                                             <td><?= $row['title'] ?></td>
                                             <td><?= $row['description'] ?></td>
                                             <td><div class="btn btn-sm btn-success" data-id="<?= $row['movie_id'] ?>" data-title="<?= $row['title'] ?>" data-description="<?= $row['description'] ?>" data-image="<?= $row['image'] ?>" onclick="new_modal1(this,'editMovieModal')">Edit</div>&nbsp;<a href="?delete_id=<?= $row['movie_id'] ?>&table=movie_list"><div class="btn btn-sm btn-danger">Delete</div></a></td>
+                                        </tr>
+                                        <?php
+                                    }
+                                }
+                                ?>
+                            </tbody>
+                        </table>
+                    </div>
+                    <br>
+                    <div class="table-responsive">
+                        <div class="d-flex justify-content-between">
+                        <label for="education_list">Education</label>
+                        <div class="btn btn-primary btn-sm" onclick="new_modal('educationModal')">New Education</div>
+                        </div>
+                        <br>
+                        <table class="table table-light" id="education_list" style="width: 100%;">
+                            <thead>
+                                <th>#</th>
+                                <th></th>
+                                <th>School</th>
+                                <th>Achievement</th>
+                                <th>Action</th>
+                            </thead>
+                            <tbody>
+                                <?php
+                                $education_list = mysqli_query($conn,"SELECT * FROM education_list");
+                                if(mysqli_num_rows($education_list)>=1){
+                                    $count = 1;
+                                    while($row = mysqli_fetch_array($education_list)){
+                                        ?>
+                                        <tr>
+                                            <td><?= $count++ ?></td>
+                                            <td><div style="text-align:center;  "><img src="<?= $row['image'] ?>" style="width:140px;"></div></td>
+                                            <td><?= $row['school'] ?></td>
+                                            <td><?= $row['achievement'] ?></td>
+                                            <td><div class="btn btn-sm btn-success" data-id="<?= $row['edu_id'] ?>" data-title="<?= $row['school'] ?>" data-description="<?= $row['achievement'] ?>" data-image="<?= $row['image'] ?>" onclick="new_modal1(this,'editEducationModal')">Edit</div>&nbsp;<a href="?delete_id=<?= $row['edu_id'] ?>&table=education_list"><div class="btn btn-sm btn-danger">Delete</div></a></td>
                                         </tr>
                                         <?php
                                     }
@@ -607,6 +618,69 @@ if(isset($_POST['submit_project'])){
                             <input type="file" class="form-control-file" id="projectMediaUpload" name="projectMediaUpload" accept="image/*,video/*" required>
                         </div>
                         <button type="submit" name="submit_project" class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Education Modal Structure -->
+    <div class="modal fade" id="educationModal" tabindex="-1" role="dialog" aria-labelledby="educationModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="educationModalLabel">Add New Education</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="EducationForm" method="POST" enctype='multipart/form-data'>
+                        <div class="form-group">
+                            <label for="educationTitle">School</label>
+                            <input type="text" class="form-control" id="EducationTitle" name="educationTitle" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="educationDescription">Achievement</label>
+                            <textarea class="form-control" id="educationDescription" name="educationDescription" rows="3" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="educationMediaUpload">Upload Image or Video</label>
+                            <input type="file" class="form-control-file" id="educationMediaUpload" name="educationMediaUpload" accept="image/*,video/*" required>
+                        </div>
+                        <button type="submit" name="submit_education" class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Education Modal Structure -->
+    <div class="modal fade" id="editEducationModal" tabindex="-1" role="dialog" aria-labelledby="editEducationModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editEducationModalLabel">Edit Education</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="" method="POST" id="editEducationForm" enctype='multipart/form-data'>
+                        <div class="form-group">
+                            <label for="editEducationTitle">Education Title</label>
+                            <input type="hidden" id="edu_id"  class="form-control" name="editEducationId">
+                            <input type="text" class="form-control" id="editEducationTitle" name="editEducationTitle" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editEducationDescription">Description</label>
+                            <textarea class="form-control" id="editEducationDescription" name="editEducationDescription" rows="3" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="editEducationMediaUpload">Upload New Image or Video</label>
+                            <img src="" id="editEducationImage" style="width:150px;">
+                        </div>
+                        <button type="submit" name="submit_edit_education" class="btn btn-primary">Submit</button>
                     </form>
                 </div>
             </div>
